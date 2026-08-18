@@ -8,9 +8,15 @@ router.get('/',(req,res,next)=>{
     });
 });
 
-router.post('/',(req,res,next)=>{
+router.post('/:userId',(req,res,next)=>{
+
+    const userId = req.params.userId;
+
     res.status(200).json({
-        message:"Estas en la ruta usuario POST"
+        message:"Estas en la ruta usuario POST",
+        userName:req.body.name,
+        userAge:req.body.age,
+        userId:userId
     });
 });
 
