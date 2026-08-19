@@ -6,7 +6,11 @@ const userRuter = require('./Routes/user');
 const database = require('./database');
 
 // Connect to the database
-database.connectToDatabase();
+database.setupDatabase()
+  .then(() => {
+    console.log('Base de datos lista');
+  })
+  .catch(console.error);
 
 // Recuerda dejar al final la ruta genera a la que se redigirá el usuario
 

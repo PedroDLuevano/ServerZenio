@@ -10,12 +10,10 @@ dotenv.config({
   path: path.join(__dirname, 'atlas-credentials.env')
 });
 
-// Definimos las rutas de conexión a la base de datos, utilizando las variables de entorno para el usuario y la contraseña
-const uri = `mongodb+srv://${encodeURIComponent(process.env.MONGODB_USERNAME)}:${encodeURIComponent(process.env.MONGODB_PASSWORD)}@cluster0.i4ovqli.mongodb.net/?appName=Cluster0`;
-
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
-const client = new MongoClient(uri, {
+// Añadir la ubicacion directa del archivo .env
+const client = new MongoClient(process.env.MONGODB_URI, {
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
@@ -24,17 +22,36 @@ const client = new MongoClient(uri, {
 });
 
 async function connectToDatabase() {
-    try {
-    // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
-    // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
-  } finally {
-    // Ensures that the client will close when you finish/error
-    await client.close();
-  }
+  await client.connect();
+  console.log('Conectado a MongoDB');
+
+  return client.db('serverzenio');
+}
+
+async function setupDatabase() {
+  const db = await connectToDatabase();
+
+  await db.createCollection('users', {
+    validator: {
+      $jsonSchema: {
+        bsonType: 'object',
+        required: ['userId', 'name', 'age', 'codePhone', 'cellphone'],
+        properties: {
+          userId: { bsonType: 'string' },
+          name: { bsonType: 'string' },
+          age: { bsonType: 'int', minimum: 18 },
+          codePhone: { bsonType: 'string' },
+          cellphone: { bsonType: 'string' }
+        }
+      }
+    },
+    validationLevel: 'strict',
+    validationAction: 'error'
+  });
+
+  return db;
 }
 
 
-module.exports = { connectToDatabase };
+
+module.exports = { client, connectToDatabase, setupDatabase };
