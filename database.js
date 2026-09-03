@@ -22,11 +22,22 @@ const client = new MongoClient(process.env.MONGODB_URI, {
   }
 });
 
-async function connectToDatabase() {
-  await client.connect();
-  console.log('Conectado a MongoDB');
+let connectionPromise;
 
-  return client.db('serverzenio');
+async function connectToDatabase() {
+  if (!connectionPromise) {
+    connectionPromise = client.connect()
+      .then(() => {
+        console.log('Conectado a MongoDB');
+        return client.db('serverzenio');
+      })
+      .catch((error) => {
+        connectionPromise = undefined;
+        throw error;
+      });
+  }
+
+  return connectionPromise;
 }
 
 async function setupDatabase() {
