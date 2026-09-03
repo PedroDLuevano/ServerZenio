@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { connectToDatabase } = require('../database');
 
 
 router.get('/',(req,res,next)=>{
@@ -8,16 +9,38 @@ router.get('/',(req,res,next)=>{
     });
 });
 
-router.post('/:userId',(req,res,next)=>{
+router.post('/:userId', async (req,res,next)=>{
+    try {
+        const { name, age, codePhone, cellphone, reminderText, nextReminderAt, reminderIntervalDays } = req.body;
+        const parsedDate = new Date(nextReminderAt);
 
-    const userId = req.params.userId;
+        if (!name || !Number.isInteger(age) || age < 18 || !codePhone || !cellphone ||
+                !reminderText || Number.isNaN(parsedDate.getTime())) {
+            return res.status(400).json({ message: 'Datos de usuario o recordatorio inválidos' });
+        }
 
-    res.status(200).json({
-        message:"Estas en la ruta usuario POST",
-        userName:req.body.name,
-        userAge:req.body.age,
-        userId:userId
-    });
+        const db = await connectToDatabase();
+        const user = {
+            userId: req.params.userId,
+            name,
+            age,
+            codePhone,
+            cellphone,
+            reminderText,
+            nextReminderAt: parsedDate,
+            reminderIntervalDays: Number.isInteger(reminderIntervalDays) && reminderIntervalDays > 0
+                ? reminderIntervalDays
+                : 1,
+            active: true,
+            reminderInProgress: false,
+            lastSentAt: null
+        };
+
+        await db.collection('users').insertOne(user);
+        res.status(201).json({ message: 'Usuario registrado correctamente', user });
+    } catch (error) {
+        next(error);
+    }
 });
 
 router.put('/',(req,res,next)=>{

@@ -3,6 +3,7 @@ const app = express();
 const morgan = require('morgan');
 
 const userRuter = require('./Routes/user');
+const webhookRouter = require('./Routes/webhook');
 const database = require('./database');
 
 // Connect to the database
@@ -19,6 +20,7 @@ app.use(morgan('dev'));
 app.use(express.json());
 
 app.use('/user', userRuter);
+app.use('/webhook', webhookRouter);
 
 app.use('/',(req,res,next)=>{
     res.status(200).json({
