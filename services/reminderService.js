@@ -1,7 +1,7 @@
 const axios = require('axios');
 const { connectToDatabase } = require('../database');
 
-async function sendWhatsAppMessage(to, text) {
+async function sendWhatsAppMessage(to) {
   await axios.post(
     `https://graph.facebook.com/${process.env.META_API_VERSION || 'v25.0'}/${process.env.PHONE_NUMBER_ID}/messages`,
     {
@@ -9,21 +9,10 @@ async function sendWhatsAppMessage(to, text) {
       to,
       type: 'template',
       template: {
-        name: process.env.WHATSAPP_TEMPLATE_NAME || 'recordatorio',
+        name: process.env.WHATSAPP_TEMPLATE_NAME || 'hello_world',
         language: {
-          code: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'es_MX'
-        },
-        components: [
-          {
-            type: 'body',
-            parameters: [
-              {
-                type: 'text',
-                text
-              }
-            ]
-          }
-        ]
+          code: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US'
+        }
       }
     },
     {
@@ -59,7 +48,7 @@ async function processReminders() {
         continue;
       }
 
-      await sendWhatsAppMessage(user.cellphone, user.reminderText);
+      await sendWhatsAppMessage(user.cellphone);
 
       const nextReminderAt = new Date();
       nextReminderAt.setDate(nextReminderAt.getDate() + (user.reminderIntervalDays || 1));
