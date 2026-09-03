@@ -1,9 +1,7 @@
-const dns = require('dns');
 const dotenv = require('dotenv');
 const path = require('path');
 const { MongoClient, ServerApiVersion } = require('mongodb');
 
-dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 // Trae a llamar el archivo de variables de entorno
 dotenv.config({
@@ -14,6 +12,9 @@ dotenv.config({
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 // Añadir la ubicacion directa del archivo .env
 const client = new MongoClient(process.env.MONGODB_URI, {
+  tls: true,
+  serverSelectionTimeoutMS: 30000,
+  connectTimeoutMS: 30000,
   serverApi: {
     version: ServerApiVersion.v1,
     strict: true,
