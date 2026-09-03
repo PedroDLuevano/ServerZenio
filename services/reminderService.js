@@ -9,9 +9,9 @@ async function sendWhatsAppMessage(to) {
       to,
       type: 'template',
       template: {
-        name: process.env.WHATSAPP_TEMPLATE_NAME || 'hello_world',
+        name: 'hello_world',
         language: {
-          code: process.env.WHATSAPP_TEMPLATE_LANGUAGE || 'en_US'
+          code: 'en_US'
         }
       }
     },
